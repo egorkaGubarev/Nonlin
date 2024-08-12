@@ -30,7 +30,6 @@
 *.exe
 
 # Output
-*.txt
 *.png
 *.gif
 *.out
