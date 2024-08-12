@@ -1,6 +1,0 @@
-﻿  eval_bin.cpp
-  Generating code
-  Previous IPDB not found, fall back to full compilation.
-  All 306 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
-  Finished generating code
-  eval_bin.vcxproj -> C:\Users\gubar\VSProjects\burn_stab_flame\x64\Release\eval_bin.exe
