@@ -1,23 +1,29 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.signal as signal
 
 
-def count_ampl(pos_data):
-    return np.average(pos_data[signal.argrelmax(pos_data)]) - np.average(pos_data[signal.argrelmin(pos_data)])
-
-
-def count_aver(list_1, list_2, list_3, list_4, list_5):
-    return (list_1 + list_2 + list_3 + list_4 + list_5) / 5
+def update_path(file_type: str):
+    if file_type == 'i':
+        return main_path + subdir_i, 'i'
+    elif file_type == 'n':
+        return main_path + subdir_n, 'n'
+    elif file_type == 'w':
+        return main_path + subdir_w, 'w'
+    elif file_type == 'loss':
+        return main_path + subdir_loss, r'$\frac{Nu}{Pe} = \frac{1}{100}$'
+    else:
+        return main_path, '-'
 
 
 subdir_i: str = 'improved/'
 subdir_n: str = 'narrow/'
 subdir_w: str = 'wide/'
-subdir_loss: str = 'loss/'
+subdir_loss: str = 'np0.01w100/'
 
-main_path: str = 'C:/users/gubar/VSProjects/burn_stab_flame/eval/'
-compare: bool = False
+main_path: str = 'D:/VSProjects/burn_stab_flame/data/eval/'
+
+plot_center: bool = True
+plot_edge: bool = False
 
 m_t_s: list = [('0.7', '3000', 'o'), ('0.71', '1000', 'o'), ('0.72', '1000', 'o'),
                ('0.73', '1000', 'o'), ('0.74', '1000', 'o'), ('0.75', '1000', 'o'),
@@ -36,57 +42,40 @@ m_t_s_narrow: list = [('0.72', '1000', 'n'), ('0.76', '1000', 'n'),
                       ('0.78', '3000', 'n'), ('0.789', '12000', 'n'), ('0.79', '10000', 'n')]
 m_t_s_wide: list = [('0.72', '1000', 'w'), ('0.76', '1000', 'w'),
                     ('0.78', '2000', 'w'), ('0.789', '12000', 'w'), ('0.79', '9000', 'w')]
-m_t_s_loss: list = [('0.7', '1000', 'loss'), ('0.75', '2000', 'loss'), ('0.78', '2000', 'loss'),
-                    ('0.788', '7000', 'loss'), ('0.79', '3000', 'loss'), ('0.8', '1000', 'loss')]
+np_0_01_w_100: list = [('0.78', '9000', 'loss'), ('0.784', '1000', 'loss'),
+                       ('0.788', '7000', 'loss'), ('0.79', '3000', 'loss'), ('0.8', '1000', 'loss')]
 
-if compare:
-    data: list = [m_t_s, m_t_s_loss]
-else:
-    data: list = [mts_conf]
-
+data: list = [np_0_01_w_100]
 fig, ax = plt.subplots()
 
 for m_t_s_list in data:
+    label: str = ''
     m_s: list = []
     center_ampl_list: list = []
     edge_ampl_list: list = []
-    ampl_list_3: list = []
-    ampl_list_4: list = []
-    ampl_list_5: list = []
 
     for (m, t, file) in m_t_s_list:
-        if file == 'i':
-            path: str = main_path + subdir_i
-        elif file == 'n':
-            path: str = main_path + subdir_n
-        elif file == 'w':
-            path: str = main_path + subdir_w
-        elif file == 'loss':
-            path: str = main_path + subdir_loss
-        else:
-            path: str = main_path
+        path, label = update_path(file)
+        result = np.loadtxt(path + 'result-' + t + '-' + m + '.txt')
 
-        pos = np.loadtxt(path + 'pos-' + t + '-' + m + '.txt')
-        points: int = pos.shape[1]
-
-        center_ampl_list.append(count_ampl(pos[:, points // 2]))
-        edge_ampl_list.append(count_ampl(pos[:, 0]))
-        ampl_list_3.append(count_ampl(pos[:, points // 4]))
-        ampl_list_4.append(count_ampl(pos[:, points // 8]))
-        ampl_list_5.append(count_ampl(pos[:, 3 * points // 8]))
+        if plot_center:
+            center_ampl_list.append(result[0])
+        if plot_edge:
+            edge_ampl_list.append(result[1])
 
         m_s.append(m)
 
     m_float: list = list(map(float, m_s))
-    plt.plot(m_float, list(map(count_aver,
-                               center_ampl_list, edge_ampl_list, ampl_list_3, ampl_list_4, ampl_list_5)), linewidth=2)
 
+    if plot_center:
+        plt.plot(m_float, center_ampl_list, marker='x', linewidth=2, label=label)
+    if plot_edge:
+        plt.plot(m_float, edge_ampl_list, marker='x', linewidth=2, label=label)
+
+plt.title('Amplitude, w = 100', fontsize=24)
 plt.xlabel(r'm, $U_b$', fontsize=24)
 plt.ylabel(r'Амплитуда, $L_{th}$', fontsize=24)
-
-if compare:
-    plt.legend(['No heat loss', 'Heat loss'])
-    plt.legend(['No heat loss', 'Heat loss'])
+plt.legend(prop={'size': 24})
 
 for axis in ['top', 'bottom', 'left', 'right']:
     ax.spines[axis].set_linewidth(2)

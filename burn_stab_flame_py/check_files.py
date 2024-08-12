@@ -3,10 +3,10 @@ from os import listdir
 from os.path import isfile, join
 
 
-main_path: str = 'C:/users/gubar/VSProjects/burn_stab_flame/'
+main_path: str = 'D:/VSProjects/burn_stab_flame/data/'
 file_type: str = 'eval/'
-subdir: str = 'loss/'
-speed: str = '0.78'
+subdir: str = 'np0.01w100/'
+speed: str = '0.784'
 sep: str = '-'
 
 len_speed: int = len(speed)
