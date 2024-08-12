@@ -49,7 +49,6 @@ type psi_1(const type pos, const type temp, const type m, const type lew, const 
 template <typename type>
 type psi_2(const type pos, const type temp, const type m, const type lew, const type N, const type sigma) {
     const type phi_val = phi(pos, temp, m, sigma, N);
-    // const type pos_stab = x_flame_stab(m, sigma, N);
     const type khi_val = khi(m, pos);
     const type psi_1_val = psi_1(pos, temp, m, lew, N);
     const type res = (phi_val + m * (1 - sigma) * psi_1_val * khi_val) / (1 + khi_val);
@@ -57,70 +56,9 @@ type psi_2(const type pos, const type temp, const type m, const type lew, const 
 }
 
 template <typename type>
-void evaluate_per(const std::vector<type>& pos_last, const std::vector<type>& temp_last, std::vector<type>& pos, std::vector<type>& temp,
-    const type m, const type N, const type sigma, const type lew, const type time_step, const type dim_step) {
-
-    const size_t points = std::size(temp_last);
-
-    for (size_t point = 0; point < points; ++point) {
-        const type temp_cent = temp_last[point];
-        const type temp_left = temp_last[point - 1];
-        const type temp_right = temp_last[point + 1];
-
-        const type pos_cent = pos_last[point];
-        const type pos_left = pos_last[point - 1];
-        const type pos_right = pos_last[point + 1];
-
-        const type khi_val = khi(m, pos_cent);
-        const type a = m / (2 * (1 - std::exp(-m * lew * pos_cent))) - m;
-        const type b = m * (1 - sigma) * (1 - lew) * khi_val / (lew * (khi_val + 1));
-
-        const type c = (1 - sigma) * m * (a * khi_val - m) / (khi_val + 1) +
-            std::pow((1 - sigma) * m, 2) * khi_val / ((khi_val + 1) * (temp_cent - sigma));
-
-        const type d = -(1 - sigma) * m * khi_val / ((khi_val + 1) * (temp_cent - sigma));
-
-        type der_2_temp = 0;
-        type der_1_temp = 0;
-        type der_2_pos = 0;
-        type der_1_pos = 0;
-
-        if (point == 0) {
-            der_2_temp = type((temp_right - 2 * temp_cent + temp_last[points - 1]) / std::pow(dim_step, 2));
-            der_1_temp = type((temp_right - temp_last[points - 1]) / (2 * dim_step));
-            der_2_pos = type((pos_right - 2 * pos_cent + pos_last[points - 1]) / std::pow(dim_step, 2));
-            der_1_pos = type((pos_right - pos_last[points - 1]) / (2 * dim_step));
-        }
-        else {
-            if (point == points - 1) {
-                der_2_temp = type((temp_last[0] - 2 * temp_cent + temp_left) / std::pow(dim_step, 2));
-                der_1_temp = type((temp_last[0] - temp_left) / (2 * dim_step));
-                der_2_pos = type((pos_last[0] - 2 * pos_cent + pos_left) / std::pow(dim_step, 2));
-                der_1_pos = type((pos_last[0] - pos_left) / (2 * dim_step));
-            }
-            else {
-                der_2_temp = type((temp_right - 2 * temp_cent + temp_left) / std::pow(dim_step, 2));
-                der_1_temp = type((temp_right - temp_left) / (2 * dim_step));
-                der_2_pos = type((pos_right - 2 * pos_cent + pos_left) / std::pow(dim_step, 2));
-                der_1_pos = type((pos_right - pos_left) / (2 * dim_step));
-            }
-        }
-
-        const type temp_new = type(temp_cent + time_step * (der_2_temp + b * der_2_pos + c * std::pow(der_1_pos, 2) +
-            d * der_1_pos * der_1_temp + psi_2(pos_cent, temp_cent, m, lew, N, sigma)));
-
-        const type pos_new = type(pos_cent + time_step * (der_2_pos / lew + a * std::pow(der_1_pos, 2) +
-            psi_1(pos_cent, temp_cent, m, lew, N)));
-
-        temp[point] = temp_new;
-        pos[point] = pos_new;
-    }
-}
-
-template <typename type>
 void evaluate_zero_der(const std::vector<type>& pos_last, const std::vector<type>& temp_last,
     std::vector<type>& pos, std::vector<type>& temp,
-    const type m, const type N, const type sigma, const type sigma_w, const type lew, const type b,
+    const type m, const type N, const type sigma, const type sigma_w, const type lew, const type np,
     const type time_step, const type dim_step, const bool loss) {
 
     const size_t points = std::size(temp_last);
@@ -137,7 +75,6 @@ void evaluate_zero_der(const std::vector<type>& pos_last, const std::vector<type
         const type pos_left = pos_last[point - 1];
         const type pos_right = pos_last[point + 1];
 
-        // const type pos_stab = x_flame_stab(m, sigma, N);
         const type khi_val = khi(m, pos_cent);
         const type a = m / (2 * (1 - std::exp(-m * lew * pos_cent))) - m;
         const type b = m * (1 - sigma) * (1 - lew) * khi_val / (lew * (khi_val + 1));
@@ -163,10 +100,8 @@ void evaluate_zero_der(const std::vector<type>& pos_last, const std::vector<type
     }
 
     if (loss){
-        const type a = b * std::sqrt(lew) / (N * (1 - sigma)) * std::exp(-N / 2);
-
-        temp[0] = (4 * a * temp[1] - a * temp[2] + 2 * dim_step * sigma_w) / (2 * dim_step + 3 * a);
-        temp[points - 1] = (4 * a * temp[points - 2] - a * temp[points - 3] + 2 * dim_step * sigma_w) / (2 * dim_step + 3 * a);
+        temp[0] = (4 * temp[1] - temp[2] + 2 * dim_step * np * sigma_w) / (2 * dim_step * np + 3);
+        temp[points - 1] = (4 * temp[points - 2] - temp[points - 3] + 2 * dim_step * np * sigma_w) / (2 * dim_step * np + 3);
     }
     else {
         temp[0] = (4 * temp[1] - temp[2]) / 3;
@@ -175,15 +110,6 @@ void evaluate_zero_der(const std::vector<type>& pos_last, const std::vector<type
 
     pos[0] = (4 * pos[1] - pos[2]) / 3;
     pos[points - 1] = (4 * pos[points - 2] - pos[points - 3]) / 3;
-}
-
-template <typename type>
-type count_depth(const std::vector<type>& pos) {
-    const size_t points = std::size(pos);
-    const type border_pos = pos[0];
-    const type center_pos = pos[points / 2];
-    const type depth = center_pos - border_pos;
-    return depth;
 }
 
 #endif

@@ -13,28 +13,29 @@ typedef double my_type;
 
 int main()
 {
-    const size_t frames = 10;
+    const size_t frames = 1000;
     const size_t verb = 10;
-    const my_type time_simul = 1;
+    const my_type time_simul = 1000;
     const size_t points_per_width = 1;
     const bool loss = true;
-    const std::string source_dir = "eval_no_log/";
+    const std::string source_dir = "no_log/";
     const std::string subdir_in = "";
     const std::string subdir_out = "";
-    const std::string speed = "0.79";
+    const std::string speed = "0.784";
 
-    const std::string start_time = "2000";
-    const std::string final_time = "2001";
+    const std::string start_time = "1000";
+    const std::string final_time = "2000";
 
     const size_t points_to_dump = size_t(width * points_per_width);
     const std::string path_in = main_path + source_dir + subdir_in;
+    const std::string path_out = main_path + subdir_out;
 
     const std::string start_suffix = start_time + '-' + speed + ".txt";
     const std::string final_suffix = final_time + '-' + speed + ".txt";
 
-    const std::string temp_out_name = subdir_out + "temp-" + start_suffix;
-    const std::string pos_out_name = subdir_out + "pos-" + start_suffix;
-    const std::string par_out_name = subdir_out + "par-" + start_suffix;
+    const std::string temp_out_name = path_out + "temp-" + start_suffix;
+    const std::string pos_out_name = path_out + subdir_out + "pos-" + start_suffix;
+    const std::string par_out_name = path_out + subdir_out + "par-" + start_suffix;
 
     std::string temp_in_name = path_in + "temp-" + start_suffix;
     std::string pos_in_name = path_in + "pos-" + start_suffix;
@@ -85,7 +86,7 @@ int main()
             dump_n<my_type>(out_temp, temp_last, points_to_dump);
         }
 
-        evaluate_zero_der(pos_last, temp_last, pos, temp, m, N, sigma, sigma_w, lew, b, time_step, dim_step, loss);
+        evaluate_zero_der(pos_last, temp_last, pos, temp, m, N, sigma, sigma_w, lew, np, time_step, dim_step, loss);
 
         copy(std::begin(pos), std::end(pos), std::begin(pos_last));
         copy(std::begin(temp), std::end(temp), std::begin(temp_last));
