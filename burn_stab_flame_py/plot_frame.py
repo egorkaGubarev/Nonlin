@@ -1,19 +1,24 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+main_path: str = 'C:/Users/gubar/VSProjects/Nonlin/burn_stab_flame/data/eval/'
+subdir: str = 'np0.01w100/'
+start_time: str = '1000'
+speed: str = '0.8'
+NP: str = '0.01'
 upstream: float = 0
 downstream: float = 10
-frames = [977, 983, 988]
-legend = [r'$t = 0 \tau_{th}$', r'$t = 6 \tau_{th}$', r'$t = 11 \tau_{th}$']
+frames = [999]
 
-pos_path: str = '../../VSProjects/burn_stab_flame/eval/pos-8000-0.78.txt'
-par_path: str = '../../VSProjects/burn_stab_flame/eval/par-8000-0.78.txt'
+# legend = [r'$t = 0 \tau_{th}$', r'$t = 6 \tau_{th}$', r'$t = 11 \tau_{th}$']
+
+path = main_path + subdir
+suffix = start_time + '-' + speed + '.txt'
+
+pos = np.loadtxt(path + 'pos-' + suffix)
+par = np.loadtxt(path + 'par-' + suffix)
 
 old_par_form: int = 8
-
-pos = np.loadtxt(pos_path)
-par = np.loadtxt(par_path)
-
 y_bott: float = 0
 width: float = float(par[0])
 dim_step: float = width / pos.shape[1]
@@ -28,7 +33,8 @@ for frame in frames:
 plt.xlim(upstream, downstream)
 plt.xlabel(r'x, $L_{th}$', fontsize=24)
 plt.ylabel(r'y, $L_{th}$', fontsize=24)
-plt.legend(legend, prop={'size': 24})
+plt.title('Front position, m = ' + speed + r', $\kappa$ = ' + NP, fontsize=24)
+# plt.legend(legend, prop={'size': 24})
 
 for axis in ['top', 'bottom', 'left', 'right']:
     ax.spines[axis].set_linewidth(2)

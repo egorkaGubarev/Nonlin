@@ -3,9 +3,9 @@ from os import listdir
 from os.path import isfile, join
 
 
-main_path: str = 'D:/VSProjects/burn_stab_flame/data/'
+main_path: str = 'C:/Users/gubar/VSProjects/Nonlin/burn_stab_flame/data/'
 file_type: str = 'eval/'
-subdir: str = 'np0.01w100/'
+subdir: str = 'np0w100/'
 speed: str = '0.784'
 sep: str = '-'
 

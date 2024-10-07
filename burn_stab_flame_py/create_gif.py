@@ -5,17 +5,19 @@ from matplotlib.animation import FuncAnimation
 
 hold_pos: float = 0
 y_bott: float = 0
-x_upstream_limit: float = 0
-downstream: float = 10
+x_upstream_limit: float = 2
+downstream: float = 5
 fps: int = 24
 
-main_path: str = 'C:/users/gubar/VSProjects/burn_stab_flame/'
+main_path: str = 'C:/users/gubar/VSProjects/Nonlin/burn_stab_flame/data/'
 directory: str = 'eval/'
-subdir: str = 'loss/'
-time_start: str = '1000'
-speed: str = '0.78'
+subdir: str = 'np0w100/'
+start_type = ''
+time_start: str = '8000'
+speed: str = '0.784'
+NP = '0'
 
-path: str = main_path + directory + subdir
+path: str = main_path + directory + subdir + start_type
 suffix: str = time_start + '-' + speed + '.txt'
 par = np.loadtxt(path + 'par-' + suffix)
 
@@ -48,9 +50,11 @@ def init():
 def update_plot(frame):
     front_plot.set_data(pos[frame, :], y)
 
-    plt.title(str(frame) + r' $\frac{D_{th}}{U_b^2}$')
-    return front_plot
+    plt.title('Front, t = ' + str(int(time_start) + frame) + r' $\tau_{th}$,'
+                                                             r' m = ' + speed + r', $\kappa = $' + NP)
+    return [front_plot]
 
 
 animation = FuncAnimation(fig, update_plot, frames=pos.shape[0], init_func=init)
-animation.save('front.gif', writer='pillow', fps=fps)
+animation.save('front_m=' + speed + '_np=' + NP + '_w=' + str(width) + '_t=' + time_start + '.gif',
+               writer='pillow', fps=fps)
