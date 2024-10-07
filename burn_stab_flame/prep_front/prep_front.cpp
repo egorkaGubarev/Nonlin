@@ -9,14 +9,15 @@ typedef double my_type;
 
 int main()
 {
-    const my_type pos_start_marg = -0.01;
-    const my_type temp_start_marg = -0.01;
-    const my_type freq = 0.5;
-    const my_type ampl = 0.01;
-    const std::string subdir = "";
-    const std::string target_dir = "eval_no_log/";
+    const my_type freq = 0;
+    const my_type ampl = 0;
+    const my_type m = 0.78;
+    const my_type pos_margin = 0.1;
+    const std::string subdir = "np0w100/";
+    const std::string target_dir = "no_log/";
+    const std::string start_type = "flat_start/";
 
-    const std::string path = main_path + target_dir + subdir;
+    const std::string path = main_path + target_dir + subdir + start_type;
 
     const std::string pos_log = path + "pos.txt";
     const std::string temp_log = path + "temp.txt";
@@ -25,11 +26,8 @@ int main()
     const size_t points = size_t(width / dim_step);
     std::ofstream out_pos, out_par, out_temp;
 
-    const my_type temp_stab = temp_flame_stab(N, m);
-    const my_type pos_stab = x_flame_stab(m, sigma, N);
-
-    const my_type pos_start = pos_stab + pos_start_marg;
-    const my_type temp_start = temp_stab + temp_start_marg;
+    const my_type temp_start = temp_flame_stab(N, m);
+    const my_type pos_start = x_flame_stab(m, sigma, N) + pos_margin;
 
     std::vector<my_type> pos_last(points, 0);
     std::vector<my_type> temp_last(points, temp_start);
